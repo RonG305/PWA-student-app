@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
@@ -32,30 +32,50 @@ const StudentForm = () => {
     }
 
     const handleSubmit = async (event) => {
-        event.preventDefault()
-
+      event.preventDefault()
+      
+      if (navigator.onLine) {
         try {
-            const response = await fetch('http://localhost:8000/api/students/', {
-                method: 'POST',
-                headers: {
-                'Content-Type': 'application/json',
+          const response = await fetch('http://localhost:8000/api/students/', {
+              method: 'POST',
+              headers: {
+              'Content-Type': 'application/json',
 
-                },
+              },
 
-                body: JSON.stringify(formData)
-                
-            })
+              body: JSON.stringify(formData)
+              
+          })
 
-            if (response.ok) {
-                console.log('data submitted succesifully')
-                window.location.reload()
-            } else {
-                console.log('Failed during data submission')
-            }
-        } catch (error) {
-            console.log('An error occured in fetching form data', error)
-        }
+          if (response.ok) {
+              console.log('data submitted succesifully')
+              window.location.reload()
+          } else {
+              console.log('Failed during data submission')
+          }
+      } catch (error) {
+          console.log('An error occured in fetching form data', error)
+      }
+      } else {
+        const offlineData = JSON.parse(localStorage.getItem('offlineData')) || [];
+        offlineData.push(formData);
+        localStorage.setItem('offlineData', JSON.stringify(offlineData));
+
+
+         // Queue a background sync event
+        if ('serviceWorker' in navigator && 'SyncManager' in window) {
+          navigator.serviceWorker.ready.then((registration) => {
+            registration.sync.register('syncData');
+          });
+  }
+      }
+
+       
     }
+
+
+  
+
 
 
     return (

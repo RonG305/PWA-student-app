@@ -28,17 +28,6 @@ const StudentEditForm = () => {
 
 
 
-  //   // const fetchStudent = async () => {
-  //   //     try {
-  //   //         const response = await fetch(`http://localhost:8000/api/students/${params.id}/`)
-  //   //         const data = await response.json()
-  //   //         setFormData(data)
-  //   //         console.log(data)
-  //   //     } catch (error) {
-  //   //         console.log('error during fetching of data')
-  //   //     }
-      
-  //   // }
   
     const fetchStudent = async () => {
       try {

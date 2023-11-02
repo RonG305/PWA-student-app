@@ -13,14 +13,29 @@ import { Link, useParams } from 'react-router-dom'
 const Students = () => {
 
     const [students, setStudents] = useState([])
+    const [currentPage, setCurrentPage] = useState(1)
     const params = useParams()
+
+    const itemsPerPage = 10
+    const startIndex = (currentPage - 1) * itemsPerPage
+    const endIndex = startIndex + itemsPerPage
+    const itemsToShow = students.slice(startIndex, endIndex)
   
 
     const fetchStudents = async () => {
         try {
             const response = await fetch("http://localhost:8000/api/students/")
             const data = await response.json()
-            setStudents(data)
+
+            const offlineData = JSON.parse(localStorage.getItem('offlineData'));
+            if (offlineData) {
+                setStudents([...data, ...offlineData]);
+                
+            } else {
+                setStudents(data)
+            }
+
+           
             console.log(data)
         } catch (error) {
             console.log('Error while fetching the data', error)
@@ -48,6 +63,8 @@ const Students = () => {
 
     useEffect(() => {
         fetchStudents()
+            
+      
     }, [])
 
     return (

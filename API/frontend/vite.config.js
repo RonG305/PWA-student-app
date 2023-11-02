@@ -12,9 +12,9 @@ export default defineConfig({
         enabled: true
       },
 
-      workbox: {
-        globPatterns: ['**/*.{js, jsx,css,html,ico,png,svg}']
-      }
+      // workbox: {
+      //   globPatterns: ['**/*.{js, jsx,css,html,ico,png,svg}']
+      // }
 
     
     })
