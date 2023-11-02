@@ -8,12 +8,13 @@ export const syncDataWithServer = async (data) => {
             body: JSON.stringify(data),
         });
 
-        console.log('Request Data:', data);
-        console.log('Request Headers:', JSON.stringify(response.headers));
+        console.log('Request Data:', JSON.stringify(data));
+        console.log('Response Status:', response.status);
+        console.log('Response Text:', await response.text());
 
         if (response.ok) {
             console.log('Data submitted successfully');
-           localStorage.removeItem('offlineData')
+            localStorage.removeItem('offlineData');
         } else {
             console.error('Data submission failed:', response.statusText);
         }

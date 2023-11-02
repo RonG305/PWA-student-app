@@ -40,11 +40,11 @@ const Students = () => {
             }
 
             window.addEventListener('online', () => {
-                const onlineData = JSON.parse(localStorage.getItem('offlineData'));
-                console.log(onlineData)
+                const offlineData = JSON.parse(localStorage.getItem('offlineData'));
+                console.log(offlineData)
     
-                if (onlineData) {
-                    if (syncDataWithServer(onlineData)) {
+                if (offlineData) {
+                    if (syncDataWithServer(offlineData)) {
                         console.log('Data synchronization success');
                     } else {
                         console.log('Data synchronization failed');
