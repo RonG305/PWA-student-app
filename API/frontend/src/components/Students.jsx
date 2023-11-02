@@ -6,7 +6,7 @@ import { AiFillEye } from 'react-icons/ai'
 import { useState, useEffect } from 'react'
 import StudentForm from './StudentForm'
 import { Link, useParams } from 'react-router-dom'
-
+import { syncDataWithServer } from '../../syncData'
 
 
 
@@ -20,6 +20,8 @@ const Students = () => {
     const startIndex = (currentPage - 1) * itemsPerPage
     const endIndex = startIndex + itemsPerPage
     const itemsToShow = students.slice(startIndex, endIndex)
+
+  
   
 
     const fetchStudents = async () => {
@@ -30,10 +32,27 @@ const Students = () => {
             const offlineData = JSON.parse(localStorage.getItem('offlineData'));
             if (offlineData) {
                 setStudents([...data, ...offlineData]);
+              
+               
                 
             } else {
                 setStudents(data)
             }
+
+            window.addEventListener('online', () => {
+                const onlineData = JSON.parse(localStorage.getItem('offlineData'));
+                console.log(onlineData)
+    
+                if (onlineData) {
+                    if (syncDataWithServer(onlineData)) {
+                        console.log('Data synchronization success');
+                    } else {
+                        console.log('Data synchronization failed');
+                    }
+                }
+
+                console.log('app online')
+            });
 
            
             console.log(data)
@@ -41,6 +60,9 @@ const Students = () => {
             console.log('Error while fetching the data', error)
         }
     }
+
+
+      
 
 
     const deleteStudent = async (params) => {
@@ -63,7 +85,7 @@ const Students = () => {
 
     useEffect(() => {
         fetchStudents()
-            
+    
       
     }, [])
 

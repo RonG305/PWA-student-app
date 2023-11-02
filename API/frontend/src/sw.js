@@ -1,5 +1,3 @@
-import { syncDataWithServer, triggerSync} from '../syncData'
-
 const STUDENTS_CACHE = 'version-1';
 
 self.addEventListener('install', (event) => {
@@ -43,22 +41,36 @@ self.addEventListener('sync', (event) => {
   }
 });
 
-const syncData = async () => {
+async function syncData() {
+  // Fetch and synchronize data with the server
   const offlineData = JSON.parse(localStorage.getItem('offlineData'));
 
   if (offlineData) {
-    const success = await syncDataWithServer(offlineData);
+    try {
+      const response = await fetch('http://localhost/api/students', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(offlineData),
+      });
 
-    if (success) {
-      localStorage.removeItem('offlineData');
+      if (response.ok) {
+        // Data synchronization successful
+        localStorage.removeItem('offlineData');
+      } else {
+        console.error('Data synchronization failed:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error during data synchronization:', error);
     }
   }
-};
+}
 
-// Trigger data synchronization when the app goes online
+
+// Listen for the online event and trigger data synchronization
 window.addEventListener('online', function () {
-  triggerSync();
+  syncData(); // Synchronize data when the network connection is established
+  console.log('app is online')
 });
 
-// You can also schedule data synchronization on a regular interval (optional)
-setInterval(triggerSync); 

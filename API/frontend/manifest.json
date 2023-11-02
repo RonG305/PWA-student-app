@@ -8,6 +8,7 @@
     "start_url": "/",
     "orientation": "portrait",
     "display": "standalone",
+ 
   
     "icons": [
         {

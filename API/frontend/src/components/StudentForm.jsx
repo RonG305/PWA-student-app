@@ -47,6 +47,9 @@ const StudentForm = () => {
               
           })
 
+          console.log('Request Data:', formData);
+          console.log('Request Headers:', JSON.stringify(response.headers));
+
           if (response.ok) {
               console.log('data submitted succesifully')
               window.location.reload()
@@ -61,13 +64,6 @@ const StudentForm = () => {
         offlineData.push(formData);
         localStorage.setItem('offlineData', JSON.stringify(offlineData));
 
-
-         // Queue a background sync event
-        if ('serviceWorker' in navigator && 'SyncManager' in window) {
-          navigator.serviceWorker.ready.then((registration) => {
-            registration.sync.register('syncData');
-          });
-  }
       }
 
        
