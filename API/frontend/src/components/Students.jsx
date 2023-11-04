@@ -6,7 +6,9 @@ import { AiFillEye } from 'react-icons/ai'
 import { useState, useEffect } from 'react'
 import StudentForm from './StudentForm'
 import { Link, useParams } from 'react-router-dom'
-import { syncDataWithServer } from '../../syncData'
+import { syncDataWithServer, triggerSync } from '../../syncData'
+
+import { addStudentToIndexedDB, clearIndexedDB, deleteStudentFromIndexedDB, getAllStudentsFromIndexDB } from '../../IndexedDBService'
 
 
 
@@ -21,6 +23,22 @@ const Students = () => {
     const endIndex = startIndex + itemsPerPage
     const itemsToShow = students.slice(startIndex, endIndex)
 
+
+    const handleSync = () => {
+        if (navigator.onLine) {
+            triggerSync()
+            alert('Data sync succesiful')
+            clearIndexedDB()
+            window.location.reload()
+        
+            
+        } else {
+            alert("Records can't sync, you are offline")
+        }
+     
+       
+    }
+
   
   
 
@@ -29,31 +47,15 @@ const Students = () => {
             const response = await fetch("http://localhost:8000/api/students/")
             const data = await response.json()
 
-            const offlineData = JSON.parse(localStorage.getItem('offlineData'));
-            if (offlineData) {
-                setStudents([...data, ...offlineData]);
-              
-               
+            if (navigator.onLine ) {
+                setStudents(data)
+           
+        
                 
             } else {
-                setStudents(data)
+                const indexedDBData = await getAllStudentsFromIndexDB();
+                setStudents(indexedDBData);
             }
-
-            window.addEventListener('online', () => {
-                const offlineData = JSON.parse(localStorage.getItem('offlineData'));
-                console.log(offlineData)
-    
-                if (offlineData) {
-                    if (syncDataWithServer(offlineData)) {
-                        console.log('Data synchronization success');
-                    } else {
-                        console.log('Data synchronization failed');
-                    }
-                }
-
-                console.log('app online')
-            });
-
            
             console.log(data)
         } catch (error) {
@@ -65,39 +67,52 @@ const Students = () => {
       
 
 
-    const deleteStudent = async (params) => {
-        try {
-            const response = await fetch(`http://localhost:8000/api/students/${params}/`, {
-                method: 'DELETE'
-            })
-
-
-            if(response.ok) {
-                fetchStudents()
-            } else {
-                console.log('Error occured while deleting student')
+    const deleteStudent = async (id) => {
+        
+        if (navigator.onLine) {
+            try {
+                const response = await fetch(`http://localhost:8000/api/students/${id}/`, {
+                    method: 'DELETE'
+                })
+                if (response.ok) {
+                    fetchStudents()
+                } else {
+                    console.log('Error occured while deleting student')
+                }
+    
+            } catch (error) {
+                console.log('There was a server error durring deletion of student', error)
             }
-
-        } catch (error) {
-            console.log('There was a server error durring deletion of student', error)
+        } else {
+            deleteStudentFromIndexedDB(id)
+            window.location.reload()
+            console.log('deleted succesifully')
+      }
         }
-    }
+    
+
+
 
     useEffect(() => {
         fetchStudents()
-    
+     
       
     }, [])
 
     return (
         <div className='px-4 overflow-x-auto'>
-             <StudentForm />
+            <div className='d-flex'>
+                <StudentForm />
+                <button className='btn btn-success my-2 mx-2' onClick={handleSync}>Sync data</button>
+            </div>
+           
              
             <h3 className='text-center my-4'>Students</h3>
             <Table className='w-100' striped bordered hover>
             <thead>
                 <tr>
-                <th>ID</th>
+                <th>ID</th>   
+                <th>REG NO</th>
                 <th>First Name</th>
                 <th>Last Name</th>
                 <th>Email</th>
@@ -108,6 +123,7 @@ const Students = () => {
             <tbody>
                 {students.map((student, index) => (
                     <tr key={index}>
+                    <td>{student.id}</td>   
                     <td>{ student.reg_number}</td>
                     <td>{student.first_name}</td>
                     <td>{student.last_name}</td>
@@ -120,7 +136,15 @@ const Students = () => {
                         <RiDeleteBin6Line
                             onClick={() => deleteStudent(student.id)}
                             style={{cursor: 'pointer'}}
-                            size={20} />
+                                size={20} />
+
+                    
+
+
+                                
+
+                            
+                            
                        <Link to={`/student/view/${student.id}`}><AiFillEye size={20} /></Link>
                     </td>
                    

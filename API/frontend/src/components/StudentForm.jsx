@@ -2,6 +2,10 @@ import { useState, useEffect } from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
+import { addStudentToIndexedDB } from '../../IndexedDBService';
+
+
+
 
 
 const StudentForm = () => {
@@ -60,12 +64,12 @@ const StudentForm = () => {
           console.log('An error occured in fetching form data', error)
       }
       } else {
-        const offlineData = JSON.parse(localStorage.getItem('offlineData')) || [];
-        offlineData.push(formData);
-        localStorage.setItem('offlineData', JSON.stringify(offlineData));
+        await addStudentToIndexedDB(formData)
+        window.location.reload()
 
       }
 
+    
        
     }
 

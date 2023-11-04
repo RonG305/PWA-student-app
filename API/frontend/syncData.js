@@ -1,3 +1,5 @@
+import { getAllStudentsFromIndexDB } from "./IndexedDBService";
+
 export const syncDataWithServer = async (data) => {
     try {
         const response = await fetch('http://localhost:8000/api/students/', {
@@ -14,7 +16,7 @@ export const syncDataWithServer = async (data) => {
 
         if (response.ok) {
             console.log('Data submitted successfully');
-            localStorage.removeItem('offlineData');
+          
         } else {
             console.error('Data submission failed:', response.statusText);
         }
@@ -22,3 +24,28 @@ export const syncDataWithServer = async (data) => {
         console.error('An error occurred while submitting data:', error);
     }
 };
+
+
+
+export const triggerSync = async () => {
+    const offlineData = await getAllStudentsFromIndexDB()
+    console.log(offlineData)
+
+    if (offlineData) {
+        if (syncDataWithServer(offlineData)) {
+            console.log('Data synchronization success');
+         
+        } else {
+            console.log('Data synchronization failed');
+        }
+    }
+};
+  
+const studentExistsOnServer = async (id) => {
+    try {
+        const student = await fetch(`http://localhost:8000/api/students/${id}`)
+        return student
+    } catch (error) {
+        console.log('Failed to fetch student with that id', error)
+    }
+}

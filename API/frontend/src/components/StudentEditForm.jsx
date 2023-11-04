@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import {Button, Modal} from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
 import { useParams, useNavigate } from 'react-router-dom';
+import { getStudentFromIndexedDB } from '../../IndexedDBService';
 
 
 const StudentEditForm = () => {
@@ -31,10 +32,14 @@ const StudentEditForm = () => {
   
     const fetchStudent = async () => {
       try {
+        
           const response = await fetch(`http://localhost:8000/api/students/${params.id}/`)
-          const data = await response.json()
+        const data = await response.json()
+        if (navigator.onLine) {
           setFormData(data)
           console.log(data)
+          }
+       
       } catch (error) {
           console.log('Error occured while getting data', error)
       }
@@ -54,29 +59,37 @@ const StudentEditForm = () => {
     }
 
     const handleSubmit = async (event) => {
-        event.preventDefault()
-
+      event.preventDefault()
+      
+      if (navigator.onLine) {
         try {
-            const response = await fetch(`http://localhost:8000/api/students/${params.id}/`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+          const response = await fetch(`http://localhost:8000/api/students/${params.id}/`, {
+              method: 'PUT',
+              headers: {
+                  'Content-Type': 'application/json'
+              },
 
-                body: JSON.stringify(formData)
+              body: JSON.stringify(formData)
 
-            })
+          })
 
-            if (response.ok) {
-            
-                navigate('/', {replace: true})
-                console.log('submission succesiful')
-            } else {
-                console.log('error ocurred while submitting the data')
-            }
-        } catch (error) {
-            console.log('Error in the form', error)
-        }
+          if (response.ok) {
+          
+              navigate('/', {replace: true})
+              console.log('submission succesiful')
+          } else {
+              console.log('error ocurred while submitting the data')
+          }
+      } catch (error) {
+          console.log('Error in the form', error)
+        } 
+
+      } else {
+        const student = getStudentFromIndexedDB(params.id)
+        setFormData(student)
+
+      }
+       
 
     }
     return (

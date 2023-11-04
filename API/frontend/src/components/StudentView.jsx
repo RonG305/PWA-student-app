@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { Card } from "react-bootstrap"
 import { Link, useParams } from "react-router-dom"
+import { getAllStudentsFromIndexDB, getStudentFromIndexedDB } from "../../IndexedDBService"
 
 const StudentView = () => {
 
@@ -9,14 +10,29 @@ const StudentView = () => {
     
 
     const fetchStudent = async () => {
-        try {
-            const response = await fetch(`http://localhost:8000/api/students/${params.id}/`)
-            const data = await response.json()
-            setStudent(data)
-            console.log(data)
-        } catch (error) {
-            console.log('Error occured while getting data', error)
+
+        if (navigator.onLine) {
+            try {
+                const response = await fetch(`http://localhost:8000/api/students/${params.id}/`)
+                const data = await response.json()
+                
+                setStudent(data)
+                console.log(data)
+            } catch (error) {
+                console.log('Error occured while getting data', error)
+            }
+        } else {
+            const offlineData = await getStudentFromIndexedDB(params.id)
+            if (offlineData) {
+                setStudent(offlineData)
+                console.log(offlineData)
+            } else {
+                console.log('Error while fetching offline data from IndexedDB')
+            }
+            
+            
         }
+    
     }
 
     useEffect(() => {
