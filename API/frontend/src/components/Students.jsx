@@ -137,13 +137,6 @@ const Students = () => {
                             onClick={() => deleteStudent(student.id)}
                             style={{cursor: 'pointer'}}
                                 size={20} />
-
-                    
-
-
-                                
-
-                            
                             
                        <Link to={`/student/view/${student.id}`}><AiFillEye size={20} /></Link>
                     </td>

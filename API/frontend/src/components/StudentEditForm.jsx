@@ -29,17 +29,17 @@ const StudentEditForm = () => {
 
 
 
-  
-    const fetchStudent = async () => {
+
+  const fetchStudent = async () => {
+      
+    
       try {
         
-          const response = await fetch(`http://localhost:8000/api/students/${params.id}/`)
+        const response = await fetch(`http://localhost:8000/api/students/${params.id}/`)
         const data = await response.json()
-        if (navigator.onLine) {
-          setFormData(data)
-          console.log(data)
-          }
-       
+        setFormData(data)
+        console.log(data)
+    
       } catch (error) {
           console.log('Error occured while getting data', error)
       }
@@ -85,8 +85,18 @@ const StudentEditForm = () => {
         } 
 
       } else {
-        const student = getStudentFromIndexedDB(params.id)
-        setFormData(student)
+        const fetchStudentData = async () => {
+          try {
+              const studentData = await getStudentFromIndexedDB(params.id);
+              setFormData(studentData);
+          } catch (error) {
+              console.error('Error while fetching student data from IndexedDB', error);
+          }
+        };
+        
+        fetchStudentData()
+        
+
 
       }
        

@@ -7,38 +7,39 @@ const StudentView = () => {
 
     const [student, setStudent] = useState({})
     const params = useParams()
-    
+
+
 
     const fetchStudent = async () => {
-
-        if (navigator.onLine) {
-            try {
-                const response = await fetch(`http://localhost:8000/api/students/${params.id}/`)
-                const data = await response.json()
-                
-                setStudent(data)
-                console.log(data)
-            } catch (error) {
-                console.log('Error occured while getting data', error)
-            }
-        } else {
-            const offlineData = await getStudentFromIndexedDB(params.id)
-            if (offlineData) {
-                setStudent(offlineData)
-                console.log(offlineData)
+        try {
+          if (navigator.onLine) {
+            const response = await fetch(`http://localhost:8000/api/students/${params.id}/`);
+            if (response.ok) {
+              const data = await response.json();
+              setStudent(data);
             } else {
-                console.log('Error while fetching offline data from IndexedDB')
+              console.log('Error occurred while getting data');
             }
-            
-            
+          } else {
+            const offlineData = await getStudentFromIndexedDB(params.id);
+            if (offlineData) {
+              setStudent(offlineData);
+            } else {
+              console.log('Error while fetching offline data from IndexedDB');
+            }
+          }
+        } catch (error) {
+          console.error('An error occurred:', error);
         }
+      };
     
-    }
 
     useEffect(() => {
-        fetchStudent()
-    }, [params.id])
-
+    
+        fetchStudent();
+    }, [params.id]);
+    
+    
     return (
         <div className="container mt-4">
             <Card>

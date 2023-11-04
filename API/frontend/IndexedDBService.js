@@ -38,23 +38,31 @@ export const clearIndexedDB = async () => {
 
 
 
-export const updateStudentFromIndexedDB = async (id) => {
+export const updateStudentFromIndexedDB = async (id, updatedStudentData) => {
     const db = await dbPromise;
     const transaction = db.transaction(STORE_NAME, 'readwrite');
     const store = transaction.objectStore(STORE_NAME);
-    
-    await store.put(id);
+
+    await store.put(updatedStudentData);
+
     await transaction.done;
 }
-  
 export const getStudentFromIndexedDB = async (id) => {
-    const db = await dbPromise
-    const transaction = db.transaction(STORE_NAME, 'readonly');
-    const store = transaction.objectStore(STORE_NAME);
+    try {
+        const db = await dbPromise;
+        const transaction = db.transaction(STORE_NAME, 'readwrite');
+        const store = transaction.objectStore(STORE_NAME);
 
-    const student = await store.get(id);
+        const student = await store.get(id);
 
-    return student;
+        if (student) {
+            return student;
+        } else {
+            throw new Error('Student not found in IndexedDB');
+        }
+    } catch (error) {
+        throw new Error('Error while retrieving data from IndexedDB', error);
+    }
 }
   
 
